@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <style>textarea { width: 100%; }</style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="block form-group">
+        <label for="nameColumn"><b>Name Column</b></label>
+        <input id="nameColumn" placeholder="Loading...">
+        <label for="priceColumn"><b>Price Column</b></label>
+        <input id="priceColumn" placeholder="Loading...">
+        <label for="picColumn"><b>Picture Column</b></label>
+        <input id="picColumn" placeholder="Loading...">
+        <label for="linkColumn"><b>Link Column</b></label>
+        <input id="linkColumn" placeholder="Loading...">
+        <label for="catColumn"><b>Category Column</b></label>
+        <input id="catColumn" placeholder="Loading...">
+        <label for="subCatColumn"><b>Subategory Column</b></label>
+        <input id="subCatColumn" placeholder="Loading...">
+        <label for="brandColumn"><b>Brand Column</b></label>
+        <input id="brandColumn" placeholder="Loading...">
+      </div>
+      <div class="block form-group">
+        <button id="btn-cancel">Cancel</button>
+        <button id="btn-set-to-default">Revert to Default</button>
+      </div>
+      <div class="block form-group">
+        <button class="action" id="btn-save">Save settings</button>
+      </div>
+      <div class="block">
+        <span id="sp-status"></span>
+        <span class="error" id="sp-error"></span>
+      </div>
+    </div>
+    <script>
+      var nameColumn = document.getElementById('nameColumn');
+      var priceColumn = document.getElementById('priceColumn');
+      var linkColumn = document.getElementById('linkColumn');
+      var picColumn = document.getElementById('picColumn');
+      var catColumn = document.getElementById('catColumn');
+      var subCatColumn = document.getElementById('subCatColumn');
+      var brandColumn = document.getElementById('brandColumn');
+      var spStatus = document
+        .getElementById('sp-status');
+      var spError = document
+        .getElementById('sp-error');
+      var btnCancel = document
+        .getElementById('btn-cancel')
+        .addEventListener('click', cancel);
+      var btnSetToDefault = document
+        .getElementById('btn-set-to-default')
+        .addEventListener('click', setToDefault);
+      var btnSave = document
+        .getElementById('btn-save')
+        .addEventListener('click', saveSettings);
+        
+      $(document).ready(function() {
+        google.script.run
+        .withFailureHandler(onFailure)
+        .withSuccessHandler(setColumnFields)
+        .getCols();
+      })
+      
+      function onFailure(message, element) {
+        spStatus.textContent = ''
+        spError.textContent = message
+      }
+      
+      function setToDefault() {
+        google.script.run
+        .withSuccessHandler(
+          function(element) {
+            spStatus.textContent = 'Set to Default went successfully'
+            spError.textContent = ''
+            google.script.run
+            .withFailureHandler(onFailure)
+            .withSuccessHandler(setColumnFields)
+            .getCols();
+          }
+        )
+        .withFailureHandler(onFailure)
+        .setCols("A", "F", "G", "D", "H", "I");
+      }
+
+      function cancel() {
+        google.script.host.close();
+      }
+        
+      function saveSettings() {
+        google.script.run
+          .withSuccessHandler(function(result, element) {
+            spStatus.textContent = 'Save successful!'
+            spError.textContent = ''
+          })
+          .withFailureHandler(function(message, element) {
+            spStatus.textContent = ''
+            spError.textContent = message
+      })
+          .setCols(nameColumn.value, linkColumn.value, picColumn.value, priceColumn.value, promoPriceColumn.value, catColumn.value, subCatColumn.value, brandColumn.value);
+      }
+
+      function setColumnFields(columns) {
+        nameColumn.value = columns.name
+        nameColumn.placeholder = columns.name
+        priceColumn.value = columns.price
+        priceColumn.placeholder = columns.price
+        promoPriceColumn.value = columns.promoPrice
+        promoPriceColumn.placeholder = columns.promoPrice
+        linkColumn.value = columns.link
+        linkColumn.placeholder = columns.link
+        picColumn.value = columns.pic
+        picColumn.placeholder = columns.pic
+        catColumn.value = columns.cat
+        catColumn.placeholder = columns.cat
+        subCatColumn.value = columns.subCat
+        subCatColumn.placeholder = columns.subCat
+        brandColumn.value = columns.brand
+        brandColumn.placeholder = columns.brand
+      }
+    </script>
+  </body>
+</html>

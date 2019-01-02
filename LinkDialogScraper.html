@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <style>textarea { width: 100%; }</style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="block form-group">
+        <label for="linkField" id="linkForm"><b>Link</b></label>
+        <input id="linkField" placeholder="http://item.taobao.com/item.htm?id=<itemId>">
+        <button class="action" id="btn-scrape">Scrape</button>
+      </div>
+      <div class="block">
+        <span id="sp-status"></span>
+        <span class="error" id="sp-error"></span>
+      </div>
+      <div class="block form-group" id="itemDetails" style="visibility: hidden;">
+        <label for="nameField"><b>Name</b></label>
+        <input id="nameField" placeholder="Loading...">
+        <label for="priceField"><b>Price</b></label>
+        <input id="priceField" placeholder="Loading...">
+        <label for="promoPriceField"><b>Promo Price</b></label>
+        <input id="promoPriceField" placeholder="Loading...">
+        <label for="picField"><b>Picture</b></label>
+        <input id="picField" placeholder="Loading...">
+        <label for="catField"><b>Category</b></label>
+        <input id="catField" placeholder="Loading...">
+        <label for="subCatField"><b>Subategory</b></label>
+        <input id="subCatField" placeholder="Loading...">
+        <label for="brandField"><b>Brand</b></label>
+        <input id="brandField" placeholder="Loading...">
+        <button class="action" id="btn-save">Save Data</button>
+        <button id="btn-cancel">Cancel</button>
+      </div>
+    </div>
+    <script>
+      var linkField = document.getElementById('linkField');
+      var nameField = document.getElementById('nameField');
+      var priceField = document.getElementById('priceField');
+      var promoPriceField = document.getElementById('promoPriceField');
+      var picField = document.getElementById('picField');
+      var catField = document.getElementById('catField');
+      var subCatField = document.getElementById('subCatField');
+      var brandField = document.getElementById('brandField');
+      var itemDetailsFields = document.getElementById('itemDetails')
+      var spStatus = document
+        .getElementById('sp-status');
+      var spError = document
+        .getElementById('sp-error');
+      var btnCancel = document
+        .getElementById('btn-cancel')
+        .addEventListener('click', cancel);
+      var btnScrape = document
+        .getElementById('btn-scrape')
+        .addEventListener('click', scrapeFromDialog);
+      var btnSave = document
+        .getElementById('btn-save')
+        .addEventListener('click', saveData);
+              
+      function onFailure(message, element) {
+        spStatus.textContent = ''
+        spError.textContent = message
+      }
+
+      function cancel() {
+        google.script.host.close();
+      }
+      function scrapeFromDialog(){
+        console.log("Scraping form...")
+        google.script.run
+        .withFailureHandler(onFailure)
+        .withSuccessHandler(fillAndExposeForm)
+        .scrapeLink(linkField.value);
+      }
+      function toggleDetailsForm(isVisible){
+        itemDetailsFields.style.visibility = (isVisible ? "visible" : "hidden");
+      }
+      function formFieldsToItem(){
+        return {
+            title: nameField.value,
+            price: priceField.value,
+            promoPrice: promoPriceField.value,
+            cat: catField.value,
+            subCat: subCatField.value,
+            brand: brandField.value,
+            link: linkField.value,
+            pic: picField.value
+          };
+      }
+      function itemToFormFields(data) {
+        linkField.value = data.link
+        linkField.placeholder = data.link
+        nameField.value = data.title
+        nameField.placeholder = data.title
+        priceField.value = data.price
+        priceField.placeholder = data.price
+        promoPriceField.value = data.promoPrice
+        promoPriceField.placeholder = data.promoPrice
+        picField.value = data.pic
+        picField.placeholder = data.pic
+      }
+      function fillAndExposeForm(data){
+        toggleDetailsForm(true)
+        itemToFormFields(data)
+      }
+      function saveData() {
+        google.script.run
+          .withSuccessHandler(function(result, element) {
+            spStatus.textContent = 'Save successful!'
+            spError.textContent = ''
+          })
+          .withFailureHandler(function(message, element) {
+            spStatus.textContent = ''
+            spError.textContent = message
+      })
+          .fillData(formFieldsToItem(),null);
+      }
+    </script>
+  </body>
+</html>
